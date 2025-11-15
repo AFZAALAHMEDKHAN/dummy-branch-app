@@ -40,7 +40,7 @@ jobs:
 
   # JOB 2: BUILD + SCAN - Creates the final Docker image
 
-  build:
+  build_and_scan:
     name: Build Docker Image
     needs: test # Only run if tests pass
     runs-on: ubuntu-latest
@@ -98,7 +98,7 @@ jobs:
 
   push:
     name: Push Image to Registry
-    #  Only run if the Security Scan passed
+    needs: build_and_scan #  Only run if the Security Scan passed
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -121,18 +121,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           
 
-      - name: Download Image Digest
-        uses: actions/download-artifact@v4
-        with:
-          name: image-digest
-          path: ${{ runner.temp }}
-          
-      - name: Read Image Digest
-        id: digest_reader
-        run: |
-          IMAGE_DIGEST=$(cat ${{ runner.temp }}/digest.txt)
-          echo "IMAGE_DIGEST_VAL=$IMAGE_DIGEST" >> $GITHUB_OUTPUT
-          
       # Extract metadata (tags) - Must be repeated to ensure consistency
       - name: Extract Docker metadata
         id: meta
@@ -153,8 +141,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # We use the digest here to ensure we are pushing the verified artifact
-          # This implicitly pulls the image layers from the intermediate cache/registry 
-          # on the runner and pushes the entire image to ghcr.io
-          image-digest: ${{ steps.digest_reader.outputs.IMAGE_DIGEST_VAL }}
-
