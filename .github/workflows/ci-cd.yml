@@ -80,8 +80,13 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Output the image digest for the next job (Security Scan)
-          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push=false,digest-file=${{ runner.temp }}/digest.txt
 
+      - name: Extract Image Digest
+        id: extract
+        run: |
+          echo "Digest from build step:"
+          echo "${{ steps.build-step.outputs.digest }}"
+          echo "${{ steps.build-step.outputs.digest }}" > ${{ runner.temp }}/digest.txt
 
       - name: Save Image Digest
         uses: actions/upload-artifact@v4
