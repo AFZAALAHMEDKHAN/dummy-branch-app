@@ -38,7 +38,7 @@ jobs:
         run: echo "Running placeholder tests..."
         # If real tests fail, this pipeline would stop here.
 
-  # JOB 2: BUILD - Creates the final Docker image
+  # JOB 2: BUILD + SCAN - Creates the final Docker image
 
   build:
     name: Build Docker Image
@@ -79,50 +79,12 @@ jobs:
           push: false # We only build here; the push job handles the actual push
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Output the image digest for the next job (Security Scan)
 
-      - name: Extract Image Digest
-        id: extract
-        run: |
-          echo "Digest from build step:"
-          echo "${{ steps.build-step.outputs.digest }}"
-          echo "${{ steps.build-step.outputs.digest }}" > ${{ runner.temp }}/digest.txt
-
-      - name: Save Image Digest
-        uses: actions/upload-artifact@v4
-        with:
-          name: image-digest
-          path: ${{ runner.temp }}/digest.txt
-
-  # JOB 3: SCAN - Runs vulnerability check using Trivy
-
-  scan:
-    name: Security Scan (Trivy)
-    needs: build # Only run if the image successfully built
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    
-    steps:
-      # Download the Image Digest from the previous job
-      - name: Download Image Digest
-        uses: actions/download-artifact@v4
-        with:
-          name: image-digest
-          path: ${{ runner.temp }}
-          
-      - name: Read Image Digest
-        id: digest_reader
-        run: |
-          IMAGE_DIGEST=$(cat ${{ runner.temp }}/digest.txt)
-          echo "Image Digest found: $IMAGE_DIGEST"
-          # Set an output variable for the full image reference
-          echo "IMAGE_REF=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@$IMAGE_DIGEST" >> $GITHUB_OUTPUT
 
       - name: Scan Image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ steps.digest_reader.outputs.IMAGE_REF }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.sha_short }}
           format: 'table'
           exit-code: '1' 
           severity: 'CRITICAL' 
@@ -132,10 +94,7 @@ jobs:
         run: echo "Image is secure. Ready for push!"
 
 
-        # ... (test, build, and scan jobs remain the same)
-  
-
-  # JOB 4: PUSH - Pushes the verified image to the container registry
+  # JOB 3: PUSH - Pushes the verified image to the container registry
 
   push:
     name: Push Image to Registry
