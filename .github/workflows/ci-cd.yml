@@ -93,6 +93,17 @@ jobs:
         if: success()
         run: echo "Image is secure. Ready for push!"
 
+      - name: Export built image as artifact (OCI)
+        run: |
+          docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }} -o image.tar
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-image
+          path: image.tar
+
+
 
   # JOB 3: PUSH - Pushes the verified image to the container registry
 
@@ -119,25 +130,18 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
 
-      # Extract metadata (tags) - Must be repeated to ensure consistency
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
+      - name: Download built image artifact
+        uses: actions/download-artifact@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=short
-            type=ref,event=branch
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            
-      # FINAL PUSH STEP
-      - name: Push Docker image to Registry
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ${{ env.DOCKERFILE_PATH }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          name: built-image
+
+      - name: Load Docker image
+        run: docker load -i image.tar
+
+      - name: Push image
+        run: |
+          for TAG in ${{ steps.meta.outputs.tags }}; do
+            docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }} $TAG
+            docker push $TAG
+          done
