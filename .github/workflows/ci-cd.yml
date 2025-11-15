@@ -93,7 +93,7 @@ jobs:
         if: success()
         run: echo "Image is secure. Ready for push!"
 
-      - name: Export built image as artifact (OCI)
+      - name: Export built image as artifact
         run: |
           docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }} -o image.tar
 
@@ -138,6 +138,17 @@ jobs:
 
       - name: Load Docker image
         run: docker load -i image.tar
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=ref,event=branch
+            # Tag the image as 'latest' only for the main branch push
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Push image
         run: |
