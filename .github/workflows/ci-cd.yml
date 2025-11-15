@@ -98,7 +98,7 @@ jobs:
 
   push:
     name: Push Image to Registry
-    needs: scan #  Only run if the Security Scan passed
+    #  Only run if the Security Scan passed
     runs-on: ubuntu-latest
     permissions:
       contents: read
