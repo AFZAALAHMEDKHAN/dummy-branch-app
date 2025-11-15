@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: branch-intl-assignment/dummy-branch-app
+  IMAGE_NAME: ${{ github.repository_owner }}/dummy-branch-app
   DOCKERFILE_PATH: ./Dockerfile
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
   # JOB 2: BUILD + SCAN - Creates the final Docker image
 
   build_and_scan:
-    name: Build Docker Image
+    name: Build & Scan Docker Image
     needs: test # Only run if tests pass
     runs-on: ubuntu-latest
     permissions:
