@@ -1,0 +1,28 @@
+services:
+  db:
+    ports:
+      - "5432:5432"
+
+  api:
+    # HOT RELOAD: Mounts the local source code directory.
+    volumes:
+      - .:/app
+
+    # DEBUG/DEVELOPMENT SETTINGS
+    environment:
+      FLASK_ENV: development
+
+    ports:
+      - "8000:8000"
+
+  # HTTPS ACCESS: Adds the nginx service for the Part 1 HTTPS requirement.
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "443:443"
+    depends_on:
+      - api
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/branchloans.crt:/etc/nginx/certs/branchloans.crt:ro
+      - ./nginx/branchloans.key:/etc/nginx/certs/branchloans.key:ro

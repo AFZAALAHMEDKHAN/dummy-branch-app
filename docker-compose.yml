@@ -1,12 +1,17 @@
 services:
   db:
     image: postgres:16
+    # SECURITY BEST PRACTICE:
+    # Do NOT hardcode credentials. Load them from the .env file instead.
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: microloans
-    ports:
-      - "5432:5432"
+      # POSTGRES_USER: postgres
+      # POSTGRES_PASSWORD: postgres
+      # POSTGRES_DB: microloans
+
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,16 +22,16 @@ services:
 
   api:
     build: .
+    # SECURITY BEST PRACTICE:
+    # Avoid hardcoding database URLs. Use .env variables instead.
     environment:
-      FLASK_ENV: development
-      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/microloans
+      # DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/microloans
+      DATABASE_URL: ${API_DATABASE_URL}
       PORT: 8000
       PYTHONPATH: /app
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "8000:8000"
     command: gunicorn -w 2 -b 0.0.0.0:8000 wsgi:app
 
 volumes:

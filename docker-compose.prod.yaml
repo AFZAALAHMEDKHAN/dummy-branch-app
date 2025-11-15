@@ -1,0 +1,39 @@
+services:
+  db:
+    # LARGER DB RESOURCE LIMITS
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Ports are NOT exposed externally (no 5432:5432)
+
+  api:
+    # NO HOT RELOAD
+
+    # OPTIMIZED SETTINGS:
+    # Override Gunicorn command to use more workers.
+    # The default base command is: gunicorn -w 2 -b 0.0.0.0:8000 wsgi:app
+    command: gunicorn -w 4 -b 0.0.0.0:8000 wsgi:app # Increase workers from 2 to 4
+
+    # STRUCTURED LOGGING:
+    # Set FLASK_ENV and a custom logging format variable.
+    environment:
+      FLASK_ENV: production
+      LOG_FORMAT: json # Requires a small change in app/config.py and app/__init__.py
+
+    # Ports are NOT exposed externally.
+
+  nginx:
+    # HTTPS ACCESS
+    image: nginx:stable-alpine
+    ports:
+      - "443:443"
+    depends_on:
+      - api
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/branchloans.crt:/etc/nginx/certs/branchloans.crt:ro
+      - ./nginx/branchloans.key:/etc/nginx/certs/branchloans.key:ro

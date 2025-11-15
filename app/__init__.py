@@ -15,4 +15,5 @@ def create_app() -> Flask:
     app.register_blueprint(loans_bp, url_prefix="/api")
     app.register_blueprint(stats_bp, url_prefix="/api")
 
+    # CONCEPTUAL: Use the new variable (LOG_FORMAT) to configure the application's logging
     return app
