@@ -27,6 +27,7 @@ end
     NGINX_C -. Uses .-> SSL_CERT[Self-Signed Certificate]
     API_C -. Reads .-> ENV_VARS[Environment Variables]
     DB_C -- Data Persistence --> VOLUME[db_data Volume]
+````
 
 ## How to Run Locally (Development Environment)
 This setup runs the API over **HTTPS** via (https://branchloans.com).
