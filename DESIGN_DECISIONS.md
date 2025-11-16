@@ -12,7 +12,7 @@ I chose **Nginx** as the reverse proxy to handle the mandatory HTTPS requirement
 
 - **Nginx Configuration**: The Nginx configuration (`nginx.conf`) and the generated certificate/key files are made available to the Nginx container using **bind mounts**. This allows changes to the configuration to be applied quickly in development without rebuilding the Nginx image.
 
-\*\*API Health Check
+**API Health Check**
 
 A robust health check is essential for readiness and monitoring. The API service now includes a health check in its Docker Compose definition: `["CMD", "curl", "-f", "http://localhost:8000/health"]`.
 
