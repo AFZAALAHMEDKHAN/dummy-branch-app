@@ -23,6 +23,7 @@ A robust health check is essential for readiness and monitoring. The API service
 ## Part 2: Multi-Environment Setup
 
 **Docker Compose Structure**
+
 The decision was made to use a base `docker-compose.yml` for common definitions (API, DB, volumes, environment variables) and separate **override** files (`.dev.yml`, `.staging.yml`, `.prod.yml`).
 
 **Rationale**: This fulfills the requirement for a single setup while allowing for clear differentiation. The base file guarantees core functionality and shared network names, while overrides handle specific changes like resource limits (`deploy: resources`), exposed ports, and environment-specific commands.
@@ -34,6 +35,7 @@ The decision was made to use a base `docker-compose.yml` for common definitions 
 ## Part 3: CI/CD Pipeline
 
 **Pipeline Structure (Separate Jobs)**
+
 The CI/CD workflow uses three distinct jobs: **Test**, **Build & Scan**, and **Push**, linked sequentially using `needs:`.
 
 **Rationale vs. Trade-off**: I could have combined the **Build, Scan, and Push** stages into a single job. However, separating them provides **clearer visibility** into which exact step failed (e.g., did the build fail, or did the scan fail?). More importantly, separating the jobs allows us to pass the built image as an artifact. This ensures the exact same binary (the scanned image) is the one that is pushed, eliminating any possibility of an un-scanned image being released.
