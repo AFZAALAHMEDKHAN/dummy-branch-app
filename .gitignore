@@ -1,2 +1,3 @@
 .env
 nginx/branchloans.key
+nginx/branchloans.crt
