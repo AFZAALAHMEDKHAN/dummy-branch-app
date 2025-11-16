@@ -9,7 +9,6 @@ Minimal REST API for microloans, now containerized and production-ready with CI/
 The service architecture relies on a Reverse Proxy (Nginx) to handle encrypted HTTPS traffic and forward it to the internal application container. The application communicates with a dedicated PostgreSQL database container on the internal Docker network.
 
 ````mermaid
-%%{init: {"flowchart": {"curve": "basis"}, "securityLevel": "loose", "mermaid": {"theme": "dark", "zoom": false}} }%%
 graph LR
 subgraph External Access
 USER[Borrower/Engineer]
