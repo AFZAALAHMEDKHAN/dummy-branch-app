@@ -15,7 +15,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d microloans"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -33,6 +33,12 @@ services:
       db:
         condition: service_healthy
     command: gunicorn -w 2 -b 0.0.0.0:8000 wsgi:app
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
 volumes:
   db_data:

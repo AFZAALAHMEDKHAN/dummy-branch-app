@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from .config import Config
 
@@ -22,3 +22,13 @@ class SessionContext:
                 self.session.rollback()
         finally:
             self.session.close()
+
+# NEW: Function to check database connectivity
+def check_db_health():
+    """Attempts to connect to the DB and execute a simple query."""
+    try:
+        with SessionContext() as session:
+            session.execute(text("SELECT 1"))
+        return True
+    except Exception:
+        return False
