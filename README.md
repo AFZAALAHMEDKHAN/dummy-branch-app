@@ -1,4 +1,4 @@
-# Branch Loan API - Production Ready Documentation
+# Branch Loan API
 
 Minimal REST API for microloans, now containerized and production-ready with CI/CD and multi-environment support.
 
