@@ -147,3 +147,10 @@ Cannot access https://branchloans.com,The browser gives a DNS error or connectio
 curl shows certificate error (expected),curl: (60) SSL certificate problem: self-signed certificate,This is expected for local development. Use the -k or --insecure flag with curl to proceed.
 API Container Restarting (Crash Loop),The api container shows restarting status.,Run docker compose logs api to check the logs. It's likely a database connection issue or a misconfigured environment variable in the .env file.
 Database connection fails (503),"Hitting /health returns {""database"": ""unreachable""} (503).",Check the database health: docker compose logs db. Ensure the DB container is fully running and healthy (health check passed).
+
+| Issue                                         | Description                                                    | Fix/Check |
+| :---                                          | :---                                                           | :---            |
+| **Cannot access `https://branchloans.com`**   | The browser gives a DNS error or connection refused.           | Did you update your `/etc/hosts` file? Check that Docker containers are running (`docker ps`). |
+| **`curl` shows certificate error (expected)** | `curl: (60) SSL certificate problem: self-signed certificate`  | This is expected for local development. Use the **`-k`** or **`--insecure`** flag with `curl` to proceed. |
+| **API Container Restarting (Crash Loop)**     | The `api` container shows restarting status.                   | Run `docker compose logs api` to check the logs. It's likely a database connection issue or a misconfigured environment variable in the `.env` file. |
+| **Database connection fails (503)**           | Hitting `/health` returns `{"database": "unreachable"}` (503). | Check the database health: `docker compose logs db`. Ensure the DB container is fully running and healthy (health check passed). |
