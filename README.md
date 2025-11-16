@@ -50,7 +50,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
  -subj "/CN=branchloans.com"
 ````
 
-2. **Update Local Hosts File**: You must map the domain **branchloans.com** to your local machine `(127.0.0.1)`.
+2. **Update Local Hosts File**: You must map the domain `branchloans.com` to your local machine `(127.0.0.1)`.
 
 - **Linux/macOS**: Edit `/etc/hosts`
 
@@ -58,9 +58,9 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 - Add the following line to the file:
 
-    ```
-    127.0.0.1 branchloans.com
-    ```
+```
+127.0.0.1 branchloans.com
+```
 
 3. **Start Services (Development)**: We use the base `docker-compose.yml` and the development override file.
 
@@ -122,29 +122,26 @@ These variables are defined in the `.env` file and consumed by the services.
 | **POSTGRES_DB**       | `db`    | `microloans`                | Name of the initial database.                      |
 | **API_DATABASE_URL**  | `api`   | `postgresql+psycopg2://...` | Full connection string used by the API service.    |
 
-Variable,Service,Default Value (Example),Description
-POSTGRES_USER,db,postgres,Database superuser username.
-POSTGRES_PASSWORD,db,postgres,Database superuser password. (Must be kept secret)
-POSTGRES_DB,db,microloans,Name of the initial database.
-API_DATABASE_URL,api,postgresql+psycopg2://...,Full connection string used by the API service.
 
-CI/CD Pipeline (.github/workflows/ci-cd.yml)
+
+## CI/CD Pipeline (`.github/workflows/ci-cd.yml`)
 The pipeline automates quality checks and deployment readiness using GitHub Actions.
 
-Stage,Triggered By,Purpose,Artifacts,Failure Criteria
+| Stage               | Triggered By                  | Purpose                                                                      | Artifacts                        | Failure Criteria                         |     
+| :---                | :---                          | :---                                                                         | :---                             | :---                                     |
+| **1. Test**         | Push, Pull Request            | Installs dependencies and runs unit tests.                                   | None                             | Tests fail                               |
+| **2. Build & Scan** | Success of Test Stage         | Builds the Docker image and scans it for vulnerabilities.                    | Built Docker Image (as artifact) | Critical vulnerabilities found by Trivy. |
+| **3. Push**         | Success of Build & Scan Stage | Tags and pushes the verified image to GitHub Container Registry (`ghcr.io`). | Pushed Image                     | Only runs on push to main branch.        |
 
-1. Test,"Push, Pull Request",Installs dependencies and runs unit tests.,None,Tests fail
-2. Build & Scan,Success of Test Stage,Builds the Docker image and scans it for vulnerabilities.,Built Docker Image (as artifact),Critical vulnerabilities found by Trivy.
-3. Push,Success of Build & Scan Stage,Tags and pushes the verified image to GitHub Container Registry (ghcr.io).,Pushed Image,Only runs on push to main branch.
+### Key Security and Workflow Details
 
-Key Security and Workflow Details
-Secrets: All registry login credentials are handled securely using the built-in ${{ secrets.GITHUB_TOKEN }} variable; no sensitive passwords are hardcoded or visible in logs.
+- **Secrets**: All registry login credentials are handled securely using the built-in `${{ secrets.GITHUB_TOKEN }}` variable; no sensitive passwords are hardcoded or visible in logs.
 
-Tagging: Images are tagged with the short Git SHA, the branch name, and the latest tag (only for main branch pushes).
+- **Tagging**: Images are tagged with the short Git SHA, the branch name, and the `latest` tag (only for main branch pushes).
 
-PRs: Pull Requests trigger the Test and Build & Scan stages but do NOT proceed to the Push stage, ensuring that only merged code is released.
+- **PRs**: Pull Requests trigger the **Test** and **Build & Scan** stages but **do NOT** proceed to the Push stage, ensuring that only merged code is released.
 
-Troubleshooting
+## Troubleshooting
 Issue,Description,Fix/Check
 Cannot access https://branchloans.com,The browser gives a DNS error or connection refused.,Did you update your /etc/hosts file? Check that Docker containers are running (docker ps).
 curl shows certificate error (expected),curl: (60) SSL certificate problem: self-signed certificate,This is expected for local development. Use the -k or --insecure flag with curl to proceed.
