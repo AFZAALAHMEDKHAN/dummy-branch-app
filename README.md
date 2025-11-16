@@ -56,11 +56,11 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 - **Windows**: Edit `C:\Windows\System32\drivers\etc\hosts`
 
-Add the following line to the file:
+- Add the following line to the file:
 
-```
-127.0.0.1 branchloans.com
-```
+    ```
+    127.0.0.1 branchloans.com
+    ```
 
 3. **Start Services (Development)**: We use the base `docker-compose.yml` and the development override file.
 
@@ -98,16 +98,29 @@ curl -k https://branchloans.com/health
 curl -k https://branchloans.com/api/loans
 ```
 
-Environment Management
-The application supports three environments (development, staging, and production) using a core docker-compose.yml file combined with environment-specific override files.
+## Environment Management
+The application supports three environments (**development**, **staging**, and **production**) using a core `docker-compose.yml` file combined with environment-specific override files.
 
-Switching Environments
-To switch, substitute the override file name in the docker compose command:
+### Switching Environments
+To switch, substitute the override file name in the `docker compose` command:
 
-Environment,Use Case,Command
-Development,"Local coding, hot reload enabled, debug logging, local ports exposed.",docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
-Staging,"QA testing, resource limits applied, standard logging, mimicks prod setup.",docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
-Production,"Optimized resource limits, higher Gunicorn worker count, structured JSON logging.",docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+| Environment | Use Case                                                                          | Command                                                                    |
+| :---        |  :---                                                                             | :---                                                                       |
+| Development | Local coding, hot reload enabled, debug logging, local ports exposed.             | `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`     |
+| Staging     | QA testing, resource limits applied, standard logging, mimicks prod setup.        | `docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d` |
+| Production  | Optimized resource limits, higher Gunicorn worker count, structured JSON logging. | `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`    |
+
+
+### Environment Variable Reference
+These variables are defined in the `.env` file and consumed by the services.
+ 
+| Variable              | Service | Default Value (Example)     | Description                                        |
+| :---                  | :---    | :---                        | :---                                               |
+| **POSTGRES_USER**     | `db`    | `postgres`                  | Database superuser username.                       |
+| **POSTGRES_PASSWORD** | `db`    | `postgres`                  | Database superuser password. (Must be kept secret) |
+| **POSTGRES_DB**       | `db`    | `microloans`                | Name of the initial database.                      |
+| **API_DATABASE_URL**  | `api`   | `postgresql+psycopg2://...` | Full connection string used by the API service.    |
 
 Variable,Service,Default Value (Example),Description
 POSTGRES_USER,db,postgres,Database superuser username.
